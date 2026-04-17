@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Birthday Surprise 💖</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
+
+<style>
+
+/* 🌈 BODY */
+body{
+    margin:0;
+    font-family:sans-serif;
+    background:linear-gradient(135deg,#ffd6e0,#d6f0ff);
+}
+
+/* PAGE */
+.page{
+    display:none;
+    height:100vh;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    text-align:center;
+}
+.active{display:flex;}
+
+h1{
+    font-family:'Playfair Display';
+    font-size:2.5rem;
+}
+
+/* ✨ GLOW */
+.glow{
+    background:linear-gradient(90deg,#ff4d88,#6ec6ff,#ff4d88);
+    background-size:200%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    color:transparent;
+    animation:glow 3s linear infinite;
+}
+@keyframes glow{
+    0%{background-position:0%;}
+    100%{background-position:200%;}
+}
+
+/* CARD */
+.card{
+    width:90%;
+    max-width:520px;
+    padding:40px;
+    border-radius:20px;
+    background:white;
+}
+
+/* INPUT */
+input{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+}
+
+/* ✅ FIXED BUTTON */
+button{
+    padding:12px 25px;
+    border:none;
+    border-radius:30px;
+    background:linear-gradient(45deg,#ff4d88,#6ec6ff);
+    color:white;
+    cursor:pointer;
+    margin-top:15px;
+    font-size:16px;
+    width:auto;
+    min-width:180px;
+}
+button:hover{
+    transform:scale(1.05);
+}
+
+/* FIREWORK */
+.fire{
+    position:absolute;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    animation:boom 1s forwards;
+}
+@keyframes boom{
+    to{
+        transform:translate(var(--x),var(--y));
+        opacity:0;
+    }
+}
+
+/* TEXT */
+#typing{
+    max-width:800px;
+    font-size:20px;
+    white-space:pre-line;
+}
+
+/* GALLERY */
+#gallery{
+    display:none;
+    height:100vh;
+    overflow:auto;
+    padding:10px;
+}
+.grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+}
+.grid img{
+    width:100%;
+    aspect-ratio:1/1;
+    object-fit:cover;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+/* VIEWER */
+#viewer{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:black;
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+#viewer img{
+    max-width:90%;
+    max-height:90%;
+}
+
+/* CLOSE */
+#closeBtn{
+    position:absolute;
+    top:20px;
+    right:30px;
+    color:white;
+    font-size:25px;
+    cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- INPUT -->
+<div id="inputPage" class="page active">
+<div class="card">
+<h1>Enter Details 🎂</h1>
+
+<input id="name" placeholder="Name">
+<input id="age" placeholder="Age">
+
+<input type="file" id="imgInput" multiple>
+<button onclick="addImages()">Add Images 📸</button>
+<p id="count">0 images</p>
+
+<button onclick="start()">Start 💖</button>
+</div>
+</div>
+
+<!-- HERO -->
+<div id="hero" class="page">
+<h1 id="title"></h1>
+<button onclick="celebrate()">Celebrate 🎉</button>
+</div>
+
+<!-- FINAL -->
+<div id="final" class="page">
+<div id="typing"></div>
+<button onclick="showGallery()">Memories 💕</button>
+</div>
+
+<!-- GALLERY -->
+<div id="gallery">
+<div class="grid" id="grid"></div>
+</div>
+
+<!-- VIEWER -->
+<div id="viewer">
+<span id="closeBtn">✖</span>
+<img id="viewerImg">
+</div>
+
+<audio id="song" src="song2.mp3" loop></audio>
+
+<script>
+
+let uploadedImages=[];
+
+/* ADD IMAGES */
+function addImages(){
+    let files=document.getElementById("imgInput").files;
+    for(let f of files){
+        uploadedImages.push(URL.createObjectURL(f));
+    }
+    document.getElementById("count").innerText=uploadedImages.length+" images";
+}
+
+/* START */
+function start(){
+    let name=document.getElementById("name").value;
+    let age=document.getElementById("age").value;
+
+    if(!name || !age){
+        alert("Fill details");
+        return;
+    }
+
+    show("hero");
+
+    document.getElementById("title").innerHTML=
+    `Happy ${age} Birthday <span class="glow">${name}</span>`;
+}
+
+/* SWITCH */
+function show(id){
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+
+/* CELEBRATE */
+function celebrate(){
+    let audio=document.getElementById("song");
+    audio.currentTime=0;
+    audio.play().catch(()=>{});
+
+    fireworks();
+
+    setTimeout(()=>{
+        show("final");
+        typeText();
+    },3000);
+}
+
+/* FIREWORKS */
+function fireworks(){
+    let inter=setInterval(()=>{
+        for(let j=0;j<5;j++){
+            let x=Math.random()*window.innerWidth;
+            let y=Math.random()*window.innerHeight;
+
+            for(let i=0;i<30;i++){
+                let f=document.createElement("div");
+                f.className="fire";
+                f.style.background=`hsl(${Math.random()*360},100%,60%)`;
+                f.style.left=x+"px";
+                f.style.top=y+"px";
+                f.style.setProperty("--x",(Math.random()*250-125)+"px");
+                f.style.setProperty("--y",(Math.random()*250-125)+"px");
+
+                document.body.appendChild(f);
+                setTimeout(()=>f.remove(),1000);
+            }
+        }
+    },200);
+
+    setTimeout(()=>clearInterval(inter),6000);
+}
+
+/* FIXED PARAGRAPH */
+function typeText(){
+let msg=`From The Moment You Came Into My Life,
+Everything Started Feeling More Beautiful 💖.
+
+Your Smile, Your Presence, Your Little Talks —
+Everything Means So Much To Me.
+
+I May Not Always Say It, But You Are Truly
+The Most Special Part Of My World.
+
+I Promise To Always Stand By You And Make You Smile.
+
+Happy Birthday To My Special One 🎂✨`;
+
+    let el=document.getElementById("typing");
+    el.textContent="";
+    let i=0;
+
+    function t(){
+        if(i<msg.length){
+            el.textContent+=msg[i++];
+            setTimeout(t,20);
+        }
+    }
+    t();
+}
+
+/* SHOW GALLERY */
+function showGallery(){
+    if(uploadedImages.length===0){
+        alert("No images uploaded!");
+        return;
+    }
+
+    document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+    document.getElementById("gallery").style.display="block";
+
+    let grid=document.getElementById("grid");
+    grid.innerHTML="";
+
+    uploadedImages.forEach(src=>{
+        let img=document.createElement("img");
+        img.src=src;
+        img.onclick=()=>openViewer(src);
+        grid.appendChild(img);
+    });
+}
+
+/* VIEW IMAGE */
+function openViewer(src){
+    document.getElementById("viewer").style.display="flex";
+    document.getElementById("viewerImg").src=src;
+}
+
+document.getElementById("closeBtn").onclick=function(){
+    document.getElementById("viewer").style.display="none";
+};
+
+</script>
+
+</body>
+</html>
