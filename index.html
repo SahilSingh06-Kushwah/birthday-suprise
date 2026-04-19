@@ -9,14 +9,12 @@
 
 <style>
 
-/* BODY */
 body{
     margin:0;
     font-family:sans-serif;
     background:linear-gradient(135deg,#ffd6e0,#d6f0ff);
 }
 
-/* PAGE */
 .page{
     display:none;
     height:100vh;
@@ -32,63 +30,92 @@ h1{
     font-size:3rem;
 }
 
-/* GLOW */
+/* glow */
 .glow{
     background:linear-gradient(90deg,#ff4d88,#6ec6ff,#ff4d88);
-    background-size:200%;
     -webkit-background-clip:text;
     background-clip:text;
     -webkit-text-fill-color:transparent;
-    animation:glow 3s linear infinite;
-}
-@keyframes glow{
-    0%{background-position:0%;}
-    100%{background-position:200%;}
 }
 
-/* CARD */
+/* card */
 .card{
     width:90%;
-    max-width:600px;
-    padding:50px;
+    max-width:500px;
+    padding:40px;
     border-radius:20px;
     background:white;
-    box-shadow:0 10px 30px rgba(0,0,0,0.1);
 }
 
-/* INPUT */
+/* input */
 input{
     width:100%;
-    padding:14px;
+    padding:12px;
     margin:10px 0;
-    border-radius:10px;
-    border:1px solid #ddd;
 }
 
-/* BUTTON */
+/* button */
 button{
-    padding:12px 30px;
+    padding:12px 25px;
     border:none;
     border-radius:30px;
     background:linear-gradient(45deg,#ff4d88,#6ec6ff);
     color:white;
     cursor:pointer;
-    margin-top:15px;
-    font-size:16px;
-}
-button:hover{
-    transform:scale(1.08);
+    margin-top:10px;
 }
 
-/* TEXT */
+/* text */
 #typing{
-    max-width:900px;
-    font-size:22px;
-    line-height:1.6;
+    max-width:800px;
+    font-size:20px;
     white-space:pre-line;
 }
 
-/* FIREWORK */
+/* gallery */
+#gallery{
+    display:none;
+    height:100vh;
+    overflow:auto;
+}
+.grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    padding:20px;
+}
+.grid img{
+    width:100%;
+    aspect-ratio:1/1;
+    object-fit:cover;
+    border-radius:10px;
+}
+
+/* viewer */
+#viewer{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:black;
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+#viewer img{
+    max-width:90%;
+    max-height:90%;
+}
+
+#closeBtn{
+    position:absolute;
+    top:20px;
+    right:30px;
+    color:white;
+    font-size:25px;
+    cursor:pointer;
+}
+
+/* fireworks */
 .fire{
     position:absolute;
     width:6px;
@@ -101,65 +128,6 @@ button:hover{
         transform:translate(var(--x),var(--y));
         opacity:0;
     }
-}
-
-/* GALLERY */
-#gallery{
-    display:none;
-    height:100vh;
-    overflow:auto;
-    padding:20px;
-}
-.grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:12px;
-}
-.grid img{
-    width:100%;
-    aspect-ratio:1/1;
-    object-fit:cover;
-    border-radius:12px;
-    cursor:pointer;
-    transition:0.3s;
-}
-.grid img:hover{
-    transform:scale(1.05);
-}
-
-/* VIEWER */
-#viewer{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100vw;
-    height:100vh;
-    background:rgba(0,0,0,0.95);
-    display:none;
-    justify-content:center;
-    align-items:center;
-    z-index:9999;
-}
-#viewer img{
-    max-width:95vw;
-    max-height:95vh;
-    object-fit:contain;
-    border-radius:10px;
-    animation:zoom 0.3s ease;
-}
-@keyframes zoom{
-    from{transform:scale(0.8);}
-    to{transform:scale(1);}
-}
-
-/* CLOSE */
-#closeBtn{
-    position:absolute;
-    top:20px;
-    right:30px;
-    font-size:30px;
-    color:white;
-    cursor:pointer;
 }
 
 </style>
@@ -175,9 +143,8 @@ button:hover{
 <input id="name" placeholder="Name">
 <input id="age" placeholder="Age">
 
-<input type="file" id="imgInput" multiple>
-<button onclick="addImages()">Add Images 📸</button>
-<p id="count">0 images</p>
+<button onclick="generateLink()">Generate Share Link 🔗</button>
+<p id="linkBox"></p>
 
 <button onclick="start()">Start 💖</button>
 </div>
@@ -192,34 +159,14 @@ button:hover{
 <!-- FINAL -->
 <div id="final" class="page">
 <div id="typing"></div>
-<button onclick="showGallery()">Memories 💕</button>
-</div>
-
-<!-- GALLERY -->
-<div id="gallery">
-<div class="grid" id="grid"></div>
-</div>
-
-<!-- VIEWER -->
-<div id="viewer">
-<span id="closeBtn">✖</span>
-<img id="viewerImg">
 </div>
 
 <audio id="song" src="song2.mp3" loop></audio>
 
 <script>
 
-let uploadedImages=[];
-
-/* ADD IMAGES */
-function addImages(){
-    let files=document.getElementById("imgInput").files;
-    for(let f of files){
-        uploadedImages.push(URL.createObjectURL(f));
-    }
-    document.getElementById("count").innerText=uploadedImages.length+" images";
-}
+let currentName="";
+let currentAge="";
 
 /* START */
 function start(){
@@ -231,10 +178,13 @@ function start(){
         return;
     }
 
+    currentName=name;
+    currentAge=age;
+
     show("hero");
 
     document.getElementById("title").innerHTML=
-    `Happiest ${age}th Birthday <span class="glow">${name}</span>`;
+    `Happy ${age} Birthday <span class="glow">${name}</span>`;
 }
 
 /* SWITCH */
@@ -246,7 +196,6 @@ function show(id){
 /* CELEBRATE */
 function celebrate(){
     let audio=document.getElementById("song");
-    audio.currentTime=0;
     audio.play().catch(()=>{});
 
     fireworks();
@@ -263,36 +212,33 @@ function fireworks(){
         let x=Math.random()*window.innerWidth;
         let y=Math.random()*window.innerHeight;
 
-        for(let i=0;i<40;i++){
+        for(let i=0;i<30;i++){
             let f=document.createElement("div");
             f.className="fire";
             f.style.background=`hsl(${Math.random()*360},100%,60%)`;
             f.style.left=x+"px";
             f.style.top=y+"px";
-            f.style.setProperty("--x",(Math.random()*300-150)+"px");
-            f.style.setProperty("--y",(Math.random()*300-150)+"px");
+            f.style.setProperty("--x",(Math.random()*200-100)+"px");
+            f.style.setProperty("--y",(Math.random()*200-100)+"px");
 
             document.body.appendChild(f);
             setTimeout(()=>f.remove(),1000);
         }
-    },150);
+    },200);
 
-    setTimeout(()=>clearInterval(inter),6000);
+    setTimeout(()=>clearInterval(inter),5000);
 }
 
-/* TEXT */
+/* TYPING */
 function typeText(){
-let msg=`From The Moment You Came Into My Life ${name},
-Everything Started Feeling More Beautiful 💖.
+let msg=`From the moment you came into my life ${currentName},
 
-Your Smile, Your Presence, Your Little Talks —
-Everything Means So Much To Me.
+Everything started feeling more beautiful 💖.
 
-I May Not Always Say It, But You Are Truly The Most Special Part Of My World.
+Your smile, your presence, your little talks —
+everything means so much to me.
 
-I Promise To Always Stand By You And Make You Smile.
-
-Happiest Birthday To My Special One 🎂✨`;
+Happy Birthday 🎂✨`;
 
     let el=document.getElementById("typing");
     el.textContent="";
@@ -307,35 +253,35 @@ Happiest Birthday To My Special One 🎂✨`;
     t();
 }
 
-/* GALLERY */
-function showGallery(){
-    if(uploadedImages.length===0){
-        alert("No images uploaded!");
+/* SHARE LINK */
+function generateLink(){
+    let name=document.getElementById("name").value;
+    let age=document.getElementById("age").value;
+
+    if(!name || !age){
+        alert("Fill details first!");
         return;
     }
 
-    document.querySelectorAll(".page").forEach(p=>p.style.display="none");
-    document.getElementById("gallery").style.display="block";
+    let url = `${window.location.origin}${window.location.pathname}?name=${encodeURIComponent(name)}&age=${age}`;
 
-    let grid=document.getElementById("grid");
-    grid.innerHTML="";
-
-    uploadedImages.forEach(src=>{
-        let img=document.createElement("img");
-        img.src=src;
-        img.onclick=()=>openViewer(src);
-        grid.appendChild(img);
-    });
+    document.getElementById("linkBox").innerHTML =
+    `<a href="${url}" target="_blank">${url}</a>`;
 }
 
-/* VIEW IMAGE */
-function openViewer(src){
-    document.getElementById("viewer").style.display="flex";
-    document.getElementById("viewerImg").src=src;
-}
+/* AUTO LOAD FROM LINK */
+window.onload=function(){
+    let params=new URLSearchParams(window.location.search);
 
-document.getElementById("closeBtn").onclick=()=>{
-    document.getElementById("viewer").style.display="none";
+    let name=params.get("name");
+    let age=params.get("age");
+
+    if(name && age){
+        document.getElementById("name").value=name;
+        document.getElementById("age").value=age;
+
+        start();
+    }
 };
 
 </script>
